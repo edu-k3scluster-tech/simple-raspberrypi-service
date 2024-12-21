@@ -1,0 +1,13 @@
+ingress:
+  enabled: true
+  hosts:
+    - host: simple-service.staging.k3scluster.tech
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: simple-service.staging.k3scluster.tech-tls
+      hosts:
+        - simple-service.staging.k3scluster.tech
+
+public_env_variables: {}
