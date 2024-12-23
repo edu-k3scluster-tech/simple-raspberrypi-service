@@ -1,15 +1,24 @@
+{{- $root := . -}}
+{{- range $service, $serviceValue := .Values.services }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "chart.fullname" . }}
+  name: {{ include "chart.fullname" $root }}-{{ $service }}
   labels:
-    {{- include "chart.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "chart.name" $root }}
+    app.kubernetes.io/instance: {{ $service }}
+    app.kubernetes.io/managed-by: {{ $root.Release.Service }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ $serviceValue.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
+  {{- range $portName, $portValues := $serviceValue.ports }}
+    - name: {{ $portName }}
+      port: {{ $portValues.servicePort }}
+      targetPort: {{ $portValues.targetPort }}
+      protocol: {{ $portValues.protocol }}
+  {{- end }}
   selector:
-    {{- include "chart.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "chart.name" $root }}
+    app.kubernetes.io/instance: {{ $service }}
+    app.kubernetes.io/managed-by: {{ $root.Release.Service }}
+{{- end }}

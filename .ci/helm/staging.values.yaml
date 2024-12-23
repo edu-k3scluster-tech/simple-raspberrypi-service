@@ -1,5 +1,7 @@
 ingress:
   enabled: true
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
   hosts:
     - host: simple-service.staging.k3scluster.tech
       paths:

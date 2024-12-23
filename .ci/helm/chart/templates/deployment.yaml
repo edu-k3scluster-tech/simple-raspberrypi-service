@@ -3,16 +3,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "chart.fullname" $root }}
+  name: {{ template "chart.fullname" $root }}-{{ $deploy }}
   labels:
-    {{- include "chart.labels" $root | nindent 4 }}
+    app.kubernetes.io/name: {{ include "chart.name" $root }}
+    app.kubernetes.io/instance: {{ $deploy }}
+    app.kubernetes.io/managed-by: {{ $root.Release.Service }}
 spec:
-  {{- if not $root.Values.autoscaling.enabled }}
-  replicas: {{ $root.Values.replicaCount }}
+  {{- if not $deployValue.autoscaling.enabled }}
+  replicas: {{ $deployValue.autoscaling.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "chart.selectorLabels" $root | nindent 6 }}
+      app.kubernetes.io/name: {{ include "chart.name" $root }}
+      app.kubernetes.io/instance: {{ $deploy }}
+      app.kubernetes.io/managed-by: {{ $root.Release.Service }}
   template:
     metadata:
       {{- with $root.Values.podAnnotations }}
@@ -20,7 +24,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "chart.selectorLabels" $root | nindent 8 }}
+        app.kubernetes.io/name: {{ include "chart.name" $root }}
+        app.kubernetes.io/instance: {{ $deploy }}
+        app.kubernetes.io/managed-by: {{ $root.Release.Service }}
     spec:
       {{- with $root.Values.imagePullSecrets }}
       imagePullSecrets:
@@ -43,10 +49,14 @@ spec:
           args:
           {{- toYaml .args | nindent 12 }}
           {{- end }}
+
+          {{- $service := get $root.Values.services $deploy }}
           ports:
-            - name: http
-              containerPort: {{ $root.Values.service.port }}
-              protocol: TCP
+          {{- range $port, $portValue := $service.ports }}
+            - name: {{ $port }}
+              containerPort: {{ $portValue.targetPort }}
+              protocol: {{ $portValue.protocol }}
+          {{- end }}
           env:
           {{- range $key, $value := $root.Values.public_env_variables }}
             - name: {{ $key }}
@@ -56,16 +66,16 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
           {{- end }}
+          {{ if .livenessProbe }}
           livenessProbe:
-            httpGet:
-              path: /
-              port: http
+            {{- toYaml .livenessProbe | nindent 12 }}
+          {{- end }}
+          {{ if .readinessProbe }}
           readinessProbe:
-            httpGet:
-              path: /
-              port: http
+            {{- toYaml .readinessProbe | nindent 12 }}
+          {{- end }}
           resources:
-            {{- toYaml $root.Values.resources | nindent 12 }}
+            {{- toYaml $deployValue.resources | nindent 12 }}
       {{- with $root.Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
