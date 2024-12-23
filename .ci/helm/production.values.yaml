@@ -1,15 +1,15 @@
-ingress:
-  enabled: true
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-production
-  hosts:
-    - host: simple-service.k3scluster.tech
-      paths:
-        - path: /
-          pathType: Prefix
-  tls:
-    - secretName: simple-service.k3scluster.tech-tls
-      hosts:
-        - simple-service.k3scluster.tech
+ingresses:
+  web:
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-production
+    hosts:
+      - host: simple-service.k3scluster.tech
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: simple-service.k3scluster.tech-tls
+        hosts:
+          - simple-service.k3scluster.tech
 
 public_env_variables: {}
