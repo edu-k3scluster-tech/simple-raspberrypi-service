@@ -16,27 +16,19 @@ spec:
   ingressClassName: {{ $ingressValue.className }}
   {{- if $ingressValue.tls }}
   tls:
-    {{- range $ingressValue.tls }}
     - hosts:
-        {{- range .hosts }}
-        - {{ . | quote }}
-        {{- end }}
-      secretName: {{ .secretName }}
-    {{- end }}
+        - {{ $ingressValue.hostname }}
+      secretName: {{ $ingressValue.hostname }}-tls
   {{- end }}
   rules:
-    {{- range $ingressValue.hosts }}
-    - host: {{ .host | quote }}
+    - host: {{ $ingressValue.hostname }}
       http:
         paths:
-          {{- range .paths }}
-          - path: {{ .path }}
-            pathType: {{ .pathType }}
+          - path: /
+            pathType: Prefix
             backend:
               service:
                 name: {{ include "chart.fullname" $root }}-{{ $ingress }}
                 port:
                   number: {{ $ingressValue.port }}
-          {{- end }}
-    {{- end }}
 {{- end }}

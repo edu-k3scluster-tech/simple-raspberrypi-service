@@ -1,15 +1,5 @@
 ingresses:
   web:
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-production
-    hosts:
-      - host: simple-service.staging.k3scluster.tech
-        paths:
-          - path: /
-            pathType: Prefix
-    tls:
-      - secretName: simple-service.staging.k3scluster.tech-tls
-        hosts:
-          - simple-service.staging.k3scluster.tech
+    hostname: simple-service.staging.k3scluster.tech
 
 public_env_variables: {}
