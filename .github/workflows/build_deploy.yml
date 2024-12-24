@@ -10,3 +10,6 @@ on:
 jobs:
   build_and_deploy:
     uses: edu-k3scluster-tech/.github/.github/workflows/deploy.yaml@main
+    secrets:
+      KUBECONFIG_FILE: '${{ secrets.KUBECONFIG_FILE }}'
+      GPG_PRIVATE_KEY: '${{ secrets.GPG_PRIVATE_KEY }}'
