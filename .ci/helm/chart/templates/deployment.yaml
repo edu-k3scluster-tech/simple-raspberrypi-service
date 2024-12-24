@@ -64,7 +64,10 @@ spec:
           {{- end }}
           {{- range $key, $value := $root.Values.secret_env_variables }}
             - name: {{ $key }}
-              value: {{ $value | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "chart.fullname" $root }}-env
+                  key: {{ $key }}
           {{- end }}
           {{ if .livenessProbe }}
           livenessProbe:
