@@ -46,6 +46,7 @@ services:
 ingresses:
   web:
     enabled: true
+    path: /
     tls: true
     hostname: FILLIN
     className: traefik
